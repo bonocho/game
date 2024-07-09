@@ -39,14 +39,26 @@
             color: 'green'
         };
 
-        const walls = [
-            {x: 1, y: 0}, {x: 1, y: 1}, {x: 1, y: 2}, {x: 1, y: 3},
-            {x: 2, y: 3}, {x: 3, y: 3}, {x: 3, y: 2}, {x: 3, y: 1},
-            {x: 4, y: 1}, {x: 5, y: 1}, {x: 5, y: 2}, {x: 5, y: 3},
-            {x: 5, y: 4}, {x: 6, y: 4}, {x: 7, y: 4}, {x: 7, y: 3},
-            {x: 7, y: 2}, {x: 7, y: 1}, {x: 7, y: 0}, {x: 8, y: 0},
-            {x: 9, y: 0}, {x: 9, y: 1}, {x: 9, y: 2}, {x: 9, y: 3},
-        ];
+        let walls = [];
+
+        function generateWalls() {
+            walls = [];
+            const numberOfWalls = 20; // 벽의 개수 조정 가능
+
+            while (walls.length < numberOfWalls) {
+                const wall = {
+                    x: Math.floor(Math.random() * cols),
+                    y: Math.floor(Math.random() * rows)
+                };
+
+                // 플레이어와 목표 지점, 그리고 기존 벽과 겹치지 않도록 함
+                if ((wall.x !== player.x || wall.y !== player.y) &&
+                    (wall.x !== goal.x || wall.y !== goal.y) &&
+                    !walls.some(w => w.x === wall.x && w.y === wall.y)) {
+                    walls.push(wall);
+                }
+            }
+        }
 
         function drawTile(x, y, color) {
             context.fillStyle = color;
@@ -78,6 +90,7 @@
                         alert('You win!');
                         player.x = 0;
                         player.y = 0;
+                        generateWalls(); // 승리 후 벽 재생성
                     }
                 }
             }
@@ -102,6 +115,7 @@
             }
         });
 
+        generateWalls();
         drawMaze();
     </script>
 </body>
