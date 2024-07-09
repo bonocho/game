@@ -33,7 +33,7 @@
         <span id="score">Score: 0</span>
         <span id="timer">Time: 30</span>
     </div>
-    <div id="message">다음 라운드로 넘어갑니다...</div>
+    <div id="message">성공 다음라운드로 갑니다...</div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const context = canvas.getContext('2d');
@@ -41,7 +41,7 @@
         const tileSize = 40;
         const rows = 10;
         const cols = 10;
-        const initialTime = 30; // 제한 시간(초)
+        const initialTime = 15; // 제한 시간(초)
 
         let score = 0;
         let timeLeft = initialTime;
@@ -183,7 +183,7 @@
                 updateScoreBoard();
 
                 if (timeLeft <= 0) {
-                    alert('Time\'s up! You lose.');
+                    alert('시간 초과!');
                     clearInterval(timerInterval);
                     resetGame();
                 }
