@@ -18,14 +18,14 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <canvas id="gameCanvas" width="800" height="800"></canvas>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const context = canvas.getContext('2d');
 
         const tileSize = 40;
-        const rows = 10;
-        const cols = 10;
+        const rows = 20;
+        const cols = 20;
 
         const player = {
             x: 0,
@@ -34,13 +34,13 @@
         };
 
         const goal = {
-            x: 9,
-            y: 9,
+            x: 19,
+            y: 19,
             color: 'green'
         };
 
         let walls = [];
-        let numberOfWalls = 10; // 초기 벽의 개수
+        let numberOfWalls = 50; // 초기 벽의 개수
 
         function generateWalls() {
             walls = [];
@@ -55,6 +55,42 @@
                     (wall.x !== goal.x || wall.y !== goal.y) &&
                     !walls.some(w => w.x === wall.x && w.y === wall.y)) {
                     walls.push(wall);
+                }
+            }
+            ensurePath();
+        }
+
+        function ensurePath() {
+            // 시작 지점부터 도착 지점까지의 경로를 확보하기 위해 DFS(깊이 우선 탐색) 사용
+            let stack = [{x: player.x, y: player.y}];
+            let visited = Array.from({length: rows}, () => Array(cols).fill(false));
+            visited[player.x][player.y] = true;
+
+            const directions = [
+                {dx: 0, dy: -1}, // 위
+                {dx: 0, dy: 1},  // 아래
+                {dx: -1, dy: 0}, // 왼쪽
+                {dx: 1, dy: 0}   // 오른쪽
+            ];
+
+            while (stack.length > 0) {
+                let {x, y} = stack.pop();
+
+                for (let {dx, dy} of directions) {
+                    let nx = x + dx;
+                    let ny = y + dy;
+
+                    if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !visited[nx][ny]) {
+                        visited[nx][ny] = true;
+                        stack.push({x: nx, y: ny});
+
+                        // 경로에 벽이 있으면 제거
+                        walls = walls.filter(wall => !(wall.x === nx && wall.y === ny));
+
+                        if (nx === goal.x && ny === goal.y) {
+                            return;
+                        }
+                    }
                 }
             }
         }
@@ -86,7 +122,7 @@
                     player.y = newY;
 
                     if (player.x === goal.x && player.y === goal.y) {
-                        alert('You win!');
+                        alert('도착!');
                         player.x = 0;
                         player.y = 0;
                         numberOfWalls += 5; // 난이도 증가: 벽의 개수를 5개씩 증가시킴
