@@ -7,6 +7,7 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -14,11 +15,25 @@
         }
         #gameCanvas {
             border: 1px solid #000;
+            margin-bottom: 20px;
+        }
+        #scoreBoard {
+            font-size: 20px;
+        }
+        #message {
+            font-size: 24px;
+            color: red;
+            display: none;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="800"></canvas>
+    <div id="scoreBoard">
+        <span id="score">Score: 0</span>
+        <span id="timer">Time: 30</span>
+    </div>
+    <div id="message">도착 다음라운드로 넘어갑니다...</div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const context = canvas.getContext('2d');
@@ -26,6 +41,11 @@
         const tileSize = 40;
         const rows = 20;
         const cols = 20;
+        const initialTime = 30; // 제한 시간(초)
+
+        let score = 0;
+        let timeLeft = initialTime;
+        let timerInterval;
 
         const player = {
             x: 0,
@@ -122,16 +142,52 @@
                     player.y = newY;
 
                     if (player.x === goal.x && player.y === goal.y) {
-                        alert('도착!');
-                        player.x = 0;
-                        player.y = 0;
-                        numberOfWalls += 5; // 난이도 증가: 벽의 개수를 5개씩 증가시킴
-                        generateWalls(); // 승리 후 벽 재생성
+                        score += 10; // 도착 시 점수 추가
+                        updateScoreBoard();
+                        showNextRoundMessage();
                     }
                 }
             }
 
             drawMaze();
+        }
+
+        function updateScoreBoard() {
+            document.getElementById('score').textContent = `Score: ${score}`;
+            document.getElementById('timer').textContent = `Time: ${timeLeft}`;
+        }
+
+        function resetGame() {
+            player.x = 0;
+            player.y = 0;
+            numberOfWalls += 10; // 난이도 증가: 벽의 개수를 10개씩 증가시킴
+            timeLeft = initialTime; // 제한 시간 초기화
+            clearInterval(timerInterval);
+            startTimer();
+            generateWalls();
+            drawMaze();
+        }
+
+        function showNextRoundMessage() {
+            const messageElement = document.getElementById('message');
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+                resetGame();
+            }, 2000); // 2초 후에 게임을 리셋
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateScoreBoard();
+
+                if (timeLeft <= 0) {
+                    alert('시간초과!');
+                    clearInterval(timerInterval);
+                    resetGame();
+                }
+            }, 1000);
         }
 
         document.addEventListener('keydown', event => {
@@ -153,6 +209,8 @@
 
         generateWalls();
         drawMaze();
+        startTimer();
     </script>
 </body>
 </html>
+
