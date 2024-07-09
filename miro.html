@@ -60,7 +60,7 @@
         };
 
         let walls = [];
-        let numberOfWalls = 20; // 초기 벽의 개수
+        let numberOfWalls = 30; // 초기 벽의 개수
 
         function generateWalls() {
             walls = [];
@@ -160,7 +160,7 @@
         function resetGame() {
             player.x = 0;
             player.y = 0;
-            numberOfWalls += 5; // 난이도 증가: 벽의 개수를 5개씩 증가시킴
+            numberOfWalls += 10; // 난이도 증가: 벽의 개수를 5개씩 증가시킴
             timeLeft = initialTime; // 제한 시간 초기화
             clearInterval(timerInterval);
             startTimer();
