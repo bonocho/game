@@ -40,11 +40,10 @@
         };
 
         let walls = [];
+        let numberOfWalls = 10; // 초기 벽의 개수
 
         function generateWalls() {
             walls = [];
-            const numberOfWalls = 20; // 벽의 개수 조정 가능
-
             while (walls.length < numberOfWalls) {
                 const wall = {
                     x: Math.floor(Math.random() * cols),
@@ -90,6 +89,7 @@
                         alert('You win!');
                         player.x = 0;
                         player.y = 0;
+                        numberOfWalls += 5; // 난이도 증가: 벽의 개수를 5개씩 증가시킴
                         generateWalls(); // 승리 후 벽 재생성
                     }
                 }
