@@ -39,19 +39,28 @@
             color: 'green'
         };
 
-        // 정적으로 정의된 미로 배열 (0: 길, 1: 벽)
-        const maze = [
-            [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-            [1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
-            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-            [1, 0, 1, 0, 0, 1, 1, 1, 0, 1],
-            [1, 0, 1, 1, 1, 1, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        ];
+        let walls = [];
+        let numberOfWalls = 10; // 초기 벽의 개수
+
+        let score = 0;
+        let timeLeft = 60; // 제한 시간 (초)
+
+        function generateWalls() {
+            walls = [];
+            while (walls.length < numberOfWalls) {
+                const wall = {
+                    x: Math.floor(Math.random() * cols),
+                    y: Math.floor(Math.random() * rows)
+                };
+
+                // 플레이어와 목표 지점, 그리고 기존 벽과 겹치지 않도록 함
+                if ((wall.x !== player.x || wall.y !== player.y) &&
+                    (wall.x !== goal.x || wall.y !== goal.y) &&
+                    !walls.some(w => w.x === wall.x && w.y === wall.y)) {
+                    walls.push(wall);
+                }
+            }
+        }
 
         function drawTile(x, y, color) {
             context.fillStyle = color;
@@ -60,21 +69,53 @@
 
         function drawMaze() {
             context.clearRect(0, 0, canvas.width, canvas.height);
+            drawTile(player.x, player.y, player.color);
+            drawTile(goal.x, goal.y, goal.color);
 
-            // 미로 그리기
-            for (let y = 0; y < rows; y++) {
-                for (let x = 0; x < cols; x++) {
-                    if (maze[y][x] === 1) {
-                        drawTile(x, y, 'black'); // 벽 그리기
-                    } else {
-                        drawTile(x, y, 'white'); // 길 그리기
+            walls.forEach(wall => {
+                drawTile(wall.x, wall.y, 'black');
+            });
+
+            // 스코어와 제한 시간 표시
+            context.fillStyle = 'black';
+            context.fillText(`Score: ${score}`, 10, 20);
+            context.fillText(`Time left: ${timeLeft}s`, canvas.width - 100, 20);
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+
+            if (newX >= 0 && newX < cols && newY >= 0 && newY < rows) {
+                const isWall = walls.some(wall => wall.x === newX && wall.y === newY);
+
+                if (!isWall) {
+                    player.x = newX;
+                    player.y = newY;
+
+                    if (player.x === goal.x && player.y === goal.y) {
+                        score++;
+                        if (score % 5 === 0) {
+                            numberOfWalls += 5; // 스코어가 5의 배수일 때마다 벽 추가
+                            generateWalls();
+                        }
+                        player.x = 0;
+                        player.y = 0;
                     }
                 }
             }
 
-            // 시작 지점과 도착 지점 그리기
-            drawTile(player.x, player.y, player.color);
-            drawTile(goal.x, goal.y, goal.color);
+            drawMaze();
+        }
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                drawMaze();
+                setTimeout(updateTimer, 1000); // 1초마다 업데이트
+            } else {
+                alert('Time is up! Game over.');
+            }
         }
 
         document.addEventListener('keydown', event => {
@@ -94,28 +135,9 @@
             }
         });
 
-        function movePlayer(dx, dy) {
-            const newX = player.x + dx;
-            const newY = player.y + dy;
-
-            // 범위 체크
-            if (newX >= 0 && newX < cols && newY >= 0 && newY < rows) {
-                // 벽인지 체크
-                if (maze[newY][newX] === 0) {
-                    player.x = newX;
-                    player.y = newY;
-
-                    // 도착 지점에 도달했을 때
-                    if (player.x === goal.x && player.y === goal.y) {
-                        alert('You win!');
-                    }
-
-                    drawMaze();
-                }
-            }
-        }
-
+        generateWalls();
         drawMaze();
+        updateTimer();
     </script>
 </body>
 </html>
